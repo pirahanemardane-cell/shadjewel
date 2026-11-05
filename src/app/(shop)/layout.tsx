@@ -1,4 +1,3 @@
-import { ScrollToTop } from "@/components/scroll-to-top";
 import { BackToTop } from "@/components/layout/back-to-top";
 import { NotificationsProvider } from "@/lib/notifications/notifications-provider";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -20,7 +19,6 @@ export default function ShopLayout({
  <div className="flex-1">
  <div className="w-full max-w-none">
  <AppBreadcrumb />
- <ScrollToTop />
  <main id="main-content" tabIndex={-1} className="outline-none">
  {children}
  </main>

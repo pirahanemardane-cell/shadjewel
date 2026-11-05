@@ -94,6 +94,12 @@ export default function RootLayout({
  return (
  <html lang="fa" dir="rtl" suppressHydrationWarning className="max-w-full">
  <head>
+ <script
+ dangerouslySetInnerHTML={{
+ __html:
+ "try{if('scrollRestoration'in history)history.scrollRestoration='manual'}catch(e){}",
+ }}
+ />
  <link
  rel="preload"
  as="font"
