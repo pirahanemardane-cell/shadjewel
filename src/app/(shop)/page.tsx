@@ -62,7 +62,7 @@ export default function HomePage() {
       <HomeHeroPreloads />
       <section
         aria-label="هیرو"
-        className="flex w-full flex-col items-stretch gap-5 pt-10 md:gap-6 md:pt-14"
+        className="flex w-full flex-col items-stretch gap-5 pt-12 md:gap-6 md:pt-16"
       >
         <HeroHeadline />
         <PolaroidLineCarousel
