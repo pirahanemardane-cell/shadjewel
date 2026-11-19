@@ -7,8 +7,11 @@ export const HERO_H1 = "شیک، ظریف، ماندگار";
 
 const PROBE_PX = 100;
 const MIN_PX = 18;
-/** Render at 90% of the max one-line fit (user-confirmed). */
-export const HERO_H1_FIT_SCALE = 0.9;
+/**
+ * Slightly under hard max one-line fit so Heavy type has breathing room
+ * without looking timid (optical sweet spot ~0.85–0.95).
+ */
+export const HERO_H1_FIT_SCALE = 0.88;
 /** Horizontal inset matches prior hero (`px-6`) so type never kisses the viewport edge. */
 const PAD_CLASS = "px-6";
 

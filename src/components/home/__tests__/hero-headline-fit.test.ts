@@ -20,8 +20,9 @@ describe("fitOneLineFontPx", () => {
     expect(fitOneLineFontPx(250, 0, 100)).toBe(18);
   });
 
-  it("render scale is 90% of max fit", () => {
-    expect(HERO_H1_FIT_SCALE).toBe(0.9);
-    expect(Math.floor(fitOneLineFontPx(250, 500, 100) * HERO_H1_FIT_SCALE * 10) / 10).toBe(45);
+  it("render scale is under max fit for breathing room", () => {
+    expect(HERO_H1_FIT_SCALE).toBeGreaterThanOrEqual(0.85);
+    expect(HERO_H1_FIT_SCALE).toBeLessThanOrEqual(0.95);
+    expect(Math.floor(fitOneLineFontPx(250, 500, 100) * HERO_H1_FIT_SCALE * 10) / 10).toBe(44);
   });
 });
