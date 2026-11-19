@@ -62,7 +62,9 @@ export default function HomePage() {
       <HomeHeroPreloads />
       <section
         aria-label="هیرو"
-        className="flex w-full flex-col items-stretch gap-5 pt-12 md:gap-6 md:pt-16"
+        // Asymmetric band: solid floor under header on phones, ~annotation air on
+        // desktop; small pb so the wire (inside the carousel) still reads below the H1.
+        className="flex w-full flex-col items-stretch pt-[clamp(5rem,9.5vw,7.5rem)] pb-3"
       >
         <HeroHeadline />
         <PolaroidLineCarousel

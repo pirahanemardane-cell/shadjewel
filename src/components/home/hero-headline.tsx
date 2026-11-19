@@ -7,6 +7,11 @@ export const HERO_H1 = "شیک، ظریف، ماندگار";
 
 const PROBE_PX = 100;
 const MIN_PX = 18;
+/**
+ * Slightly under hard max one-line fit so Heavy type has breathing room
+ * without looking timid (optical sweet spot ~0.85–0.95).
+ */
+export const HERO_H1_FIT_SCALE = 0.88;
 /** Horizontal inset matches prior hero (`px-6`) so type never kisses the viewport edge. */
 const PAD_CLASS = "px-6";
 
@@ -69,6 +74,10 @@ export function HeroHeadline({ className }: { className?: string }) {
         next = Math.round((next + 0.5) * 10) / 10;
       }
 
+      // 90% of max one-line fit — still one line, optically smaller than edge-fill.
+      next = Math.max(MIN_PX, Math.floor(next * HERO_H1_FIT_SCALE * 10) / 10);
+      text.style.fontSize = `${next}px`;
+
       setFontPx((prev) => (prev === next ? prev : next));
     };
 
@@ -107,7 +116,7 @@ export function HeroHeadline({ className }: { className?: string }) {
         className="w-max max-w-full font-black text-primary whitespace-nowrap text-center tracking-tight"
         style={{
           // SSR / pre-measure: short phrase — generous fluid clamp, then JS max-fits.
-          fontSize: fontPx != null ? `${fontPx}px` : "clamp(1.75rem, 9vw, 4.5rem)",
+          fontSize: fontPx != null ? `${fontPx}px` : "clamp(1.5rem, 8vw, 4rem)",
           // Beat global `h1 { line-height: 2.5rem }` (fixed rem) so ink doesn't overflow into the polaroid.
           lineHeight: 1.15,
         }}

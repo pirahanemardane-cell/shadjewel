@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitOneLineFontPx } from "@/components/home/hero-headline";
+import { fitOneLineFontPx, HERO_H1_FIT_SCALE } from "@/components/home/hero-headline";
 
 describe("fitOneLineFontPx", () => {
   it("scales probe width to fill available", () => {
@@ -18,5 +18,11 @@ describe("fitOneLineFontPx", () => {
   it("guards invalid inputs", () => {
     expect(fitOneLineFontPx(0, 500, 100)).toBe(18);
     expect(fitOneLineFontPx(250, 0, 100)).toBe(18);
+  });
+
+  it("render scale is under max fit for breathing room", () => {
+    expect(HERO_H1_FIT_SCALE).toBeGreaterThanOrEqual(0.85);
+    expect(HERO_H1_FIT_SCALE).toBeLessThanOrEqual(0.95);
+    expect(Math.floor(fitOneLineFontPx(250, 500, 100) * HERO_H1_FIT_SCALE * 10) / 10).toBe(44);
   });
 });
