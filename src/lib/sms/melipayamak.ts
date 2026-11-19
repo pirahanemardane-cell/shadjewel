@@ -1,6 +1,8 @@
 /**
  * ملی‌پیامک — الگو + OTP
  */
+import { otpPatternArgs, resolveBodyId } from "./patterns";
+
 export type MeliResult =
  | { ok: true; recId: string }
  | { ok: false; error: string; raw?: string };
@@ -94,10 +96,16 @@ export async function meliSendOtp(opts: { to: string; code: number }): Promise<M
  }
 }
 
+/**
+ * Login / signup / OTP recovery — approved pattern 592258 (single `{0}` = code).
+ * bodyId from MELIPAYAMAK_BODY_OTP_LOGIN, fallback MELIPAYAMAK_BODY_ID.
+ */
 export async function meliSendLoginCode(opts: { to: string; code: string }): Promise<MeliResult> {
- if (env("MELIPAYAMAK_BODY_ID") || env("MELIPAYAMAK_BODY_OTP_LOGIN")) {
- const bodyId = env("MELIPAYAMAK_BODY_OTP_LOGIN") || env("MELIPAYAMAK_BODY_ID")!;
- return meliSendByBodyId({ to: opts.to, bodyId, text: opts.code });
+ const bodyId = resolveBodyId("OTP_LOGIN");
+ if (bodyId) {
+  // One pattern arg only — never name or domain.
+  const text = otpPatternArgs(opts.code).join(";");
+  return meliSendByBodyId({ to: opts.to, bodyId, text });
  }
  return meliSendOtp({ to: opts.to, code: Number(opts.code) });
 }
