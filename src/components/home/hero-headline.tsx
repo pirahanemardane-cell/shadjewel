@@ -96,12 +96,15 @@ export function HeroHeadline({ className }: { className?: string }) {
   return (
     <div
       ref={wrapRef}
-      className={["w-full", PAD_CLASS, className].filter(Boolean).join(" ")}
+      // flex + justify-center: true visual center on RTL (avoids mx-auto drift).
+      className={["flex w-full justify-center", PAD_CLASS, className]
+        .filter(Boolean)
+        .join(" ")}
       data-hero-h1-fit={fontPx != null ? "1" : "0"}
     >
       <h1
         ref={textRef}
-        className="mx-auto w-max max-w-full font-black text-primary whitespace-nowrap text-center tracking-tight"
+        className="w-max max-w-full font-black text-primary whitespace-nowrap text-center tracking-tight"
         style={{
           // SSR / pre-measure: short phrase — generous fluid clamp, then JS max-fits.
           fontSize: fontPx != null ? `${fontPx}px` : "clamp(1.75rem, 9vw, 4.5rem)",
