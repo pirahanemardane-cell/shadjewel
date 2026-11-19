@@ -61,10 +61,17 @@ function p(
  return { key, envKey: `MELIPAYAMAK_BODY_${key}`, arity, panelText, priority };
 }
 
+/** Approved Melipayamak OTP body (pattern 592258): one var = verification code only. */
+export const OTP_PANEL_TEXT =
+ "کد تأیید شما در اکسسوری شاد: {0} میباشد. https://shadjewel.ir/";
+
+const OTP_KEYS = new Set<SmsPatternKey>(["OTP_REGISTER", "OTP_LOGIN", "OTP_RECOVERY"]);
+
 export const SMS_PATTERNS: Record<SmsPatternKey, PatternDef> = {
- OTP_REGISTER: p("OTP_REGISTER", 3, "{0} عزیز کد تأیید ثبت‌نام شما در اکسسوری شاد: {1} این کد تا {2} دقطرح معتبر است. https://shadjewel.ir لغو11"),
- OTP_LOGIN: p("OTP_LOGIN", 2, "{0} عزیز کد ورود به حساب اکسسوری شاد: {1} این کد را در اختیار دیگران قرار ندهید. https://shadjewel.ir لغو11"),
- OTP_RECOVERY: p("OTP_RECOVERY", 2, "{0} عزیز کد بازیابی حساب اکسسوری شاد: {1} در صورت درخواست نکردن این پیام را نادیده بگیرید. https://shadjewel.ir لغو11"),
+ // Login / signup / OTP recovery share one approved single-variable template.
+ OTP_REGISTER: p("OTP_REGISTER", 1, OTP_PANEL_TEXT),
+ OTP_LOGIN: p("OTP_LOGIN", 1, OTP_PANEL_TEXT),
+ OTP_RECOVERY: p("OTP_RECOVERY", 1, OTP_PANEL_TEXT),
  SECURITY_PHONE_CHANGE: p("SECURITY_PHONE_CHANGE", 2, "{0} عزیز شماره موبایل حساب شما در اکسسوری شاد به {1} تغییر یافت. اگر شما نبودید فوراً با پشتیبانی تماس بگیرید. https://shadjewel.ir لغو11"),
  SECURITY_PASSWORD_CHANGE: p("SECURITY_PASSWORD_CHANGE", 1, "{0} عزیز رمز عبور حساب شما در اکسسوری شاد با موفقیت تغییر کرد. اگر شما نبودید فوراً اقدام کنید. https://shadjewel.ir لغو11"),
  SECURITY_SUSPICIOUS_LOGIN: p("SECURITY_SUSPICIOUS_LOGIN", 2, "{0} عزیز ورود جدید از دستگاه/IP مشکوک به حساب اکسسوری شاد شما ثبت شد. زمان: {1} https://shadjewel.ir لغو11", "recommended"),
@@ -107,6 +114,18 @@ export function resolveBodyId(key: SmsPatternKey): string | undefined {
  const def = SMS_PATTERNS[key];
  const specific = process.env[def.envKey]?.trim();
  if (specific) return specific;
- if (key === "OTP_LOGIN") return process.env.MELIPAYAMAK_BODY_ID?.trim();
+ // OTP family: prefer MELIPAYAMAK_BODY_OTP_LOGIN, then legacy MELIPAYAMAK_BODY_ID.
+ if (OTP_KEYS.has(key)) {
+  if (key !== "OTP_LOGIN") {
+   const shared = process.env.MELIPAYAMAK_BODY_OTP_LOGIN?.trim();
+   if (shared) return shared;
+  }
+  return process.env.MELIPAYAMAK_BODY_ID?.trim() || undefined;
+ }
  return undefined;
+}
+
+/** Pattern args for OTP sends — code only; never name/domain. */
+export function otpPatternArgs(code: string | number): string[] {
+ return [String(code).trim()];
 }
