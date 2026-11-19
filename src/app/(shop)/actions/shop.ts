@@ -910,19 +910,30 @@ export async function getMyProfileAction() {
 export async function updateMyProfileAction(input: {
  full_name?: string;
  phone?: string;
+ /** @deprecated Ignored — role cannot be set via self-update (privilege escalation). */
+ role?: unknown;
+ is_active?: unknown;
+ [key: string]: unknown;
 }) {
  try {
  const user = await requireUser();
  if (!user) return { ok: false as const, error: "login_required" };
  const supabase = await createClient();
+
+ // Strip role / privilege keys even if a crafted client sends them.
+ const { sanitizeProfileSelfPatch } = await import(
+ "@/lib/security/profile-privileges"
+ );
+ const sanitized = sanitizeProfileSelfPatch(input as Record<string, unknown>);
+
  const patch: Record<string, string | null> = {};
- if (typeof input.full_name === "string") {
- const nameOk = assertNoLinkOrImage(input.full_name, "نام");
+ if (typeof sanitized.patch.full_name === "string") {
+ const nameOk = assertNoLinkOrImage(sanitized.patch.full_name, "نام");
  if (!nameOk.ok) return { ok: false as const, error: nameOk.error };
  patch.full_name = nameOk.text || null;
  }
- if (typeof input.phone === "string") {
- const raw = input.phone.trim().replace(/\s/g, "");
+ if (typeof sanitized.patch.phone === "string") {
+ const raw = sanitized.patch.phone.trim().replace(/\s/g, "");
  if (!raw) {
  patch.phone = null;
  } else {
@@ -938,16 +949,12 @@ export async function updateMyProfileAction(input: {
  if (!Object.keys(patch).length) {
  return { ok: false as const, error: "nothing_to_update" };
  }
+
+ // Update only — never upsert role. Missing row: insert customer via service.
  const { data: updated, error } = await supabase
  .from("profiles")
- .upsert(
- {
- id: user.id,
- ...patch,
- role: "customer",
- } as never,
- { onConflict: "id" },
- )
+ .update(patch as never)
+ .eq("id", user.id)
  .select("id")
  .maybeSingle();
  if (error) throw error;
@@ -955,12 +962,25 @@ export async function updateMyProfileAction(input: {
  try {
  const { createServiceClient } = await import("@/lib/supabase/service");
  const service = createServiceClient();
- const { error: sErr } = await service.from("profiles").upsert({
+ const { data: existing } = await service
+ .from("profiles")
+ .select("id, role")
+ .eq("id", user.id)
+ .maybeSingle();
+ if (existing) {
+ const { error: sErr } = await service
+ .from("profiles")
+ .update(patch as never)
+ .eq("id", user.id);
+ if (sErr) throw sErr;
+ } else {
+ const { error: sErr } = await service.from("profiles").insert({
  id: user.id,
  ...patch,
  role: "customer",
  } as never);
  if (sErr) throw sErr;
+ }
  } catch (se) {
  console.error("[updateMyProfile service]", se);
  return { ok: false as const, error: "profile_write_failed" };
