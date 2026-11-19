@@ -137,9 +137,13 @@ export function WordmarkRevealFooter({
     if (!wrapper || !row || !probe) return;
     const measure = () => {
       wrapper.style.fontSize = BASE_FONT;
-      const available = wrapper.clientWidth;
+      // Content box only — padding on the wordmark (if any) must not inflate available width,
+      // or font-fit overflows and LTR leftover skews visual center.
+      const styles = getComputedStyle(wrapper);
+      const padX = (Number.parseFloat(styles.paddingLeft) || 0) + (Number.parseFloat(styles.paddingRight) || 0);
+      const available = Math.max(0, wrapper.clientWidth - padX);
       const needed = row.scrollWidth;
-      const basePx = Number.parseFloat(getComputedStyle(wrapper).fontSize) || 72;
+      const basePx = Number.parseFloat(styles.fontSize) || 72;
       const fit = available > 0 && needed > available ? Math.max(24, Math.floor(basePx * (available / needed) * 10) / 10) : 0;
       if (fit) wrapper.style.fontSize = `${fit}px`;
       const rowBox = row.getBoundingClientRect();
@@ -367,10 +371,16 @@ export function WordmarkRevealFooter({
           role="img"
           aria-label={wordmark}
           onPointerLeave={() => setHover(-1)}
-          className="relative mt-auto select-none pt-8 font-extrabold @3xl:pt-12 leading-none tracking-[-0.04em] [--glint:color-mix(in_oklch,var(--color-foreground)_42%,var(--color-background))] [--wm:var(--color-foreground)] dark:[--glint:var(--color-foreground)] dark:[--wm:color-mix(in_oklch,var(--color-foreground)_90%,transparent)]"
+          className="relative mt-auto flex w-full flex-col items-center select-none pt-8 font-extrabold @3xl:pt-12 leading-none tracking-[-0.04em] [--glint:color-mix(in_oklch,var(--color-foreground)_42%,var(--color-background))] [--wm:var(--color-foreground)] dark:[--glint:var(--color-foreground)] dark:[--wm:color-mix(in_oklch,var(--color-foreground)_90%,transparent)]"
           style={{ fontSize, unicodeBidi: "isolate" }}
         >
-          <div ref={rowRef} data-row dir="ltr" className="relative whitespace-nowrap" style={{ clipPath: `inset(-100% 0 ${descent}px 0)`, marginBottom: `${-descent}px`, unicodeBidi: "isolate" }}>
+          <div
+            ref={rowRef}
+            data-row
+            dir="ltr"
+            className="relative w-max max-w-full whitespace-nowrap"
+            style={{ clipPath: `inset(-100% 0 ${descent}px 0)`, marginBottom: `${-descent}px`, unicodeBidi: "isolate" }}
+          >
             {letters.map((letter, i) => (
               <span
                 key={`${i}-${letter}`}
@@ -401,16 +411,21 @@ export function WordmarkRevealFooter({
             ))}
             <span ref={probeRef} aria-hidden="true" data-baseline className="inline-block h-0 w-0 align-baseline" />
           </div>
-          <div data-floor aria-hidden="true" className="relative h-px w-full bg-border" />
+          <div data-floor aria-hidden="true" className="relative h-px w-full self-stretch bg-border" />
           {reflection && (
             <div
               ref={reflectionRef}
               data-reflection
               aria-hidden="true"
-              className="relative overflow-hidden opacity-[0.14] dark:opacity-10"
+              className="relative w-full self-stretch overflow-hidden opacity-[0.14] dark:opacity-10"
               style={{ height: "0.42em", maskImage: "linear-gradient(to bottom, black 0%, transparent 92%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 92%)", opacity: isRevealed ? undefined : 0 }}
             >
-              <div data-mirror-row className="whitespace-nowrap" style={{ transform: "scaleY(-1)", marginTop: `${-descent - 1}px` }}>
+              <div
+                data-mirror-row
+                dir="ltr"
+                className="mx-auto flex w-max max-w-full justify-center whitespace-nowrap"
+                style={{ transform: "scaleY(-1)", marginTop: `${-descent - 1}px`, unicodeBidi: "isolate" }}
+              >
                 {letters.map((letter, i) => (
                   <span
                     key={`${i}-${letter}`}
