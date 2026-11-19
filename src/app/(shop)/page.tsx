@@ -62,7 +62,9 @@ export default function HomePage() {
       <HomeHeroPreloads />
       <section
         aria-label="هیرو"
-        className="flex w-full flex-col items-stretch gap-5 pt-12 md:gap-6 md:pt-16"
+        // Top pad matches annotated Production band (~125px under header at ~1360).
+        // Tight gap so H1 sits in the red band between header and polaroid wire.
+        className="flex w-full flex-col items-stretch gap-1 pt-[clamp(2.5rem,9.2vw,7.8125rem)]"
       >
         <HeroHeadline />
         <PolaroidLineCarousel
