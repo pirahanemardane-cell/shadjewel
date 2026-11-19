@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { HeroHeadline } from "@/components/home/hero-headline";
 import { HomeBelowFold } from "@/components/home/home-below-fold";
 import PolaroidLineCarousel from "@/components/ui/polaroid-line-carousel";
 
@@ -59,14 +60,20 @@ export default function HomePage() {
   return (
     <>
       <HomeHeroPreloads />
-      <PolaroidLineCarousel
-        showChrome={false}
-        slides={[...HERO_SLIDES]}
-        height={null}
-        className="h-[min(70svh,22rem)] md:h-[min(100svh,36rem)]"
-        background="var(--background)"
-        ariaLabel="گالری عکس محصولات"
-      />
+      <section
+        aria-label="هیرو"
+        className="flex w-full flex-col items-stretch gap-5 pt-4 md:gap-6 md:pt-6"
+      >
+        <HeroHeadline />
+        <PolaroidLineCarousel
+          showChrome={false}
+          slides={[...HERO_SLIDES]}
+          height={null}
+          className="h-[min(70svh,22rem)] md:h-[min(100svh,36rem)]"
+          background="var(--background)"
+          ariaLabel="گالری عکس محصولات"
+        />
+      </section>
       <Suspense fallback={null}>
         <HomeBelowFold />
       </Suspense>
