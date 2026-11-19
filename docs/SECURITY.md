@@ -17,6 +17,7 @@
 ## کارهای دستی (یک‌بار — حتماً انجام بده)
 
 1. در **Supabase → SQL Editor** محتوای فایل `supabase/migrations/030_rls_hardening.sql` را اجرا کنید.
+1b. **فوری (ضد privilege escalation):** `supabase/migrations/068_profiles_block_self_role_escalation.sql` را اجرا کنید تا کاربر نتواند `profiles.role` / `is_active` خودش را عوض کند.
 2. در **Supabase → Authentication → URL Configuration** دامنه `https://shadjewel.ir` را مجاز کنید.
 3. متغیرهای زیر را فقط در **Vercel → Settings → Environment Variables** (server-side) بگذارید:
  - `SUPABASE_SERVICE_ROLE_KEY`
