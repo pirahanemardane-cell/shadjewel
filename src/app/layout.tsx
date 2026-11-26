@@ -125,7 +125,7 @@ export default function RootLayout({
  <meta name="application-name" content="اکسسوری شاد" />
  <meta name="theme-color" content="#f08080" />
  </head>
- <body className="min-h-screen font-sans antialiased max-w-full" suppressHydrationWarning>
+ <body className="min-h-dvh max-w-full font-sans antialiased" suppressHydrationWarning>
  <JsonLd data={[organizationSchema(), websiteSchema()]} />
  <ThemeProvider
  attribute="class"

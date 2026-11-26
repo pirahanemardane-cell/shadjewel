@@ -15,12 +15,12 @@ export default function ShopLayout({
  return (
  <SiteLoaderProvider>
  <NotificationsProvider>
- <div className="flex min-h-screen flex-col">
+ <div className="storefront-root flex min-h-dvh w-full min-w-0 max-w-full flex-col">
 <SiteHeader />
- <div className="flex-1">
- <div className="w-full max-w-none">
+ <div className="w-full min-w-0 max-w-full flex-1">
+ <div className="w-full min-w-0 max-w-full">
  <AppBreadcrumb />
- <main id="main-content" tabIndex={-1} className="outline-none">
+ <main id="main-content" tabIndex={-1} className="min-w-0 max-w-full outline-none">
  {children}
  </main>
  </div>

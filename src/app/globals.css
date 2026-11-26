@@ -411,18 +411,28 @@ h4, .h4 { font-weight: 600 !important; }
  --ring: #ffdab9;
 }
 
-/* === PM-OVERFLOW-GUARD (auto) === */
-/* overflow-x:hidden روی html/body باعث شکستن position:sticky می‌شود */
+/* === PM-OVERFLOW-GUARD ===
+   Horizontal overflow kept recurring because each page inherited the same
+   document bugs: overflow-x:hidden on html (forces overflow-y:auto and breaks
+   sticky / vertical scrolling), 100vw vs the scrollbar, and flex/grid
+   min-width:auto. Contain it once here.
+   clip does not create a scrollport, so overflow-y stays visible and sticky works.
+*/
 html {
+ width: 100%;
  max-width: 100%;
+ overflow-x: clip;
  -webkit-text-size-adjust: 100%;
  text-size-adjust: 100%;
 }
 
 body {
+ width: 100%;
  max-width: 100%;
+ min-width: 0;
  min-height: 100dvh;
  margin: 0;
+ overflow-x: clip;
  padding-left: env(safe-area-inset-left, 0);
  padding-right: env(safe-area-inset-right, 0);
 }
@@ -433,24 +443,26 @@ body {
  box-sizing: border-box;
 }
 
+/* Replaced media only. height:auto on svg collapses icon buttons in flex rows. */
 img,
 video,
-svg,
 canvas,
 iframe {
  max-width: 100%;
  height: auto;
 }
 
+svg {
+ max-width: 100%;
+}
+
+/* Break long strings in text, not every inline control (that stacked glyphs vertically). */
 p,
 h1, h2, h3, h4, h5, h6,
 li,
 td,
-th,
-span,
-a {
- overflow-wrap: anywhere;
- word-break: break-word;
+th {
+ overflow-wrap: break-word;
 }
 
 table {
@@ -497,49 +509,24 @@ code {
  left: 50% !important;
  right: auto !important;
  transform: translateX(-50%) !important;
- width: min(92vw, 380px) !important;
+ width: min(92%, 380px) !important;
  }
 }
 /* === PM-TOAST-POS-END === */
 
-/* full-width + no horizontal overflow (all devices) */
-html,
-body {
- width: 100%;
- max-width: 100%;
- overflow-x: hidden;
-}
-*,
-*::before,
-*::after {
- box-sizing: border-box;
-}
-img,
-video,
-svg,
-canvas {
- max-width: 100%;
- height: auto;
-}
-/* flex/grid children that otherwise force page wider */
-.min-w-0-safe {
+/* Direct shell children may not use min-content width (that is what widened every page).
+   Do not set max-width here: it would beat Tailwind max-w-* on those children. */
+.min-w-0-safe,
+.storefront-root,
+.storefront-root > * {
  min-width: 0;
 }
 
-/* === FULL WIDTH LAYOUT (site-wide) === */
-html {
+.storefront-root {
  width: 100%;
  max-width: 100%;
 }
-body {
- width: 100%;
- max-width: 100%;
- overflow-x: clip; /* بهتر از hidden برای sticky در مرورگرهای جدید */
-}
-img, video, canvas, svg {
- max-width: 100%;
- height: auto;
-}
+
 /* جداول عریض فقط داخل wrapper اسکرول می‌خورند، نه کل صفحه */
 .table-scroll {
  width: 100%;
