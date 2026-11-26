@@ -76,6 +76,8 @@ export default function AdminNotificationsPage() {
  if (!res.ok) {
  const map: Record<string, string> = {
  auth: "ورود لازم است",
+ login_required: "ورود لازم است",
+ server: "خطای سرور",
  forbidden: "دسترسی ادمین ندارید",
  template: "عنوان و توضیحات را کامل کنید",
  target_required: "گیرنده لازم است",

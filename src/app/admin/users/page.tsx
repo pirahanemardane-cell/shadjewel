@@ -7,21 +7,19 @@ import {
  adminArchiveUsersAction,
  adminHardDeleteUsersAction,
 } from "@/app/admin/actions/lifecycle";
-import {
- adminListUsersAction,
- adminUpdateUserRoleAction,
-} from "@/app/admin/actions/users";
+import { adminListUsersAction } from "@/app/admin/actions/users";
 import { LumaSpin } from "@/components/ui/luma-spin";
-import { formatJalaliDate, formatJalaliDateTime } from "@/lib/dates/jalali";
+import { formatJalaliDate } from "@/lib/dates/jalali";
 
 
-const ROLES = ["customer", "staff", "admin"] as const;
+const ROLE_FILTERS = ["buyer", "admin"] as const;
 
-const ROLE_FA: Record<string, string> = {
- customer: "مشتری",
- staff: "کارمند",
- admin: "ادمین",
-};
+function roleLabel(role: string): string {
+ const r = role.toLowerCase();
+ if (r === "admin") return "ادمین";
+ if (r === "buyer" || r === "customer") return "خریدار";
+ return role;
+}
 
 type Row = {
  id: string;
@@ -37,7 +35,6 @@ export default function AdminUsersPage() {
  const [error, setError] = useState<string | null>(null);
  const [selected, setSelected] = useState<string[]>([]);
  const [bulkBusy, setBulkBusy] = useState(false);
- const [busyId, setBusyId] = useState<string | null>(null);
  const [q, setQ] = useState("");
  const [roleFilter, setRoleFilter] = useState("");
 
@@ -125,24 +122,6 @@ export default function AdminUsersPage() {
  void load();
  }, [load]);
 
- async function changeRole(id: string, role: string) {
- setBusyId(id);
- const res = await adminUpdateUserRoleAction(
- id,
- role as "customer" | "staff" | "admin",
- );
- setBusyId(null);
- if (!res.ok) {
- setError(
- res.error === "cannot_demote_self"
- ? "نمی‌توانید نقش خودتان را از ادمین بردارید"
- : "تغییر نقش ناموفق بود",
- );
- return;
- }
- setItems((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
- }
-
  return (
  <div className="bg-background min-h-screen p-6" dir="rtl">
  <div className="w-full max-w-none space-y-4">
@@ -181,9 +160,9 @@ export default function AdminUsersPage() {
  className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
  >
  <option value="">همه نقش‌ها</option>
- {ROLES.map((r) => (
+ {ROLE_FILTERS.map((r) => (
  <option key={r} value={r}>
- {ROLE_FA[r]}
+ {roleLabel(r)}
  </option>
  ))}
  </select>
@@ -233,20 +212,7 @@ export default function AdminUsersPage() {
  <td className="p-3 font-mono text-xs" dir="ltr">
  {u.phone || "—"}
  </td>
- <td className="p-3">
- <select
- value={u.role}
- disabled={busyId === u.id}
- onChange={(e) => void changeRole(u.id, e.target.value)}
- className="border-input bg-background h-9 rounded-lg border px-2 text-xs"
- >
- {ROLES.map((r) => (
- <option key={r} value={r}>
- {ROLE_FA[r] ?? r}
- </option>
- ))}
- </select>
- </td>
+ <td className="p-3">{roleLabel(u.role)}</td>
  <td className="text-muted-foreground p-3 text-xs whitespace-nowrap">
  {formatJalaliDate(u.created_at)}
  </td>

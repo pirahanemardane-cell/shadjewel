@@ -1,7 +1,7 @@
 /**
  * Permission matrix — single source for role capabilities
  */
-export const ROLES = ["guest", "customer", "staff", "admin"] as const;
+export const ROLES = ["guest", "buyer", "admin"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const PERMISSIONS = [
@@ -15,18 +15,14 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 const ALL_ADMIN = PERMISSIONS.filter((p) => p.startsWith("admin."));
 
+const BUYER: readonly Permission[] = [
+ "catalog.view","cart.manage","checkout.place","order.view_own","order.cancel_own",
+ "return.request","review.create","review.report","profile.manage","ticket.create",
+];
+
 const ROLE_MAP: Record<Role, readonly Permission[]> = {
  guest: ["catalog.view", "cart.manage"],
- customer: [
- "catalog.view","cart.manage","checkout.place","order.view_own","order.cancel_own",
- "return.request","review.create","review.report","profile.manage","ticket.create",
- ],
- staff: [
- "catalog.view","cart.manage","checkout.place","order.view_own","order.cancel_own",
- "return.request","review.create","review.report","profile.manage","ticket.create",
- "admin.access","admin.products","admin.orders","admin.content","admin.reviews",
- "admin.returns","admin.shipping","admin.media",
- ],
+ buyer: BUYER,
  admin: [
  "catalog.view","cart.manage","checkout.place","order.view_own","order.cancel_own",
  "return.request","review.create","review.report","profile.manage","ticket.create",
@@ -37,9 +33,10 @@ const ROLE_MAP: Record<Role, readonly Permission[]> = {
 export function normalizeRole(raw: string | null | undefined): Role {
  const r = String(raw || "").toLowerCase().trim();
  if (r === "admin") return "admin";
- if (r === "staff") return "staff";
- if (r === "customer") return "customer";
- return "guest";
+ // customer is the pre-lock buyer value. staff/superadmin are not privileged.
+ if (r === "buyer" || r === "customer" || r === "staff" || r === "superadmin") return "buyer";
+ if (!r) return "guest";
+ return "buyer";
 }
 
 export function can(role: Role | string | null | undefined, permission: Permission): boolean {

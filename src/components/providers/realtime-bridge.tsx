@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isStoreAdmin } from "@/lib/security/store-admin";
 import { useServerCartStore } from "@/lib/server-cart-store";
 import { RT } from "@/lib/realtime/events";
 
@@ -43,6 +44,7 @@ export function RealtimeBridge() {
  const supabase = createClient();
  const { data } = await supabase.auth.getUser();
  const uid = data.user?.id ?? null;
+ const email = data.user?.email ?? null;
  if (cancelled) return;
  setUserId(uid);
  if (!uid) {
@@ -55,7 +57,12 @@ export function RealtimeBridge() {
  .eq("id", uid)
  .maybeSingle();
  if (!cancelled) {
- setIsAdmin((profile as { role?: string } | null)?.role === "admin");
+ setIsAdmin(
+ isStoreAdmin({
+ email,
+ role: (profile as { role?: string } | null)?.role,
+ }),
+ );
  }
  } catch {
  if (!cancelled) {

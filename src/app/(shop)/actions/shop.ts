@@ -2,6 +2,7 @@
 import { notifyOrderPlaced } from "@/lib/sms/transactional";
 import { emailOrderPlaced } from "@/lib/email/send";
 
+import { isStoreAdminEmail } from "@/lib/security/store-admin";
 import { createClient } from "@/lib/supabase/server";
 import { WishlistRepository } from "@/repositories/wishlist.repository";
 import { AddressRepository, type AddressInput } from "@/repositories/address.repository";
@@ -897,7 +898,7 @@ export async function getMyProfileAction() {
  full_name: null,
  phone: null,
  avatar_url: null,
- role: "customer",
+ role: "buyer",
  },
  email: user.email ?? null,
  };
@@ -944,7 +945,6 @@ export async function updateMyProfileAction(input: {
  {
  id: user.id,
  ...patch,
- role: "customer",
  } as never,
  { onConflict: "id" },
  )
@@ -958,7 +958,6 @@ export async function updateMyProfileAction(input: {
  const { error: sErr } = await service.from("profiles").upsert({
  id: user.id,
  ...patch,
- role: "customer",
  } as never);
  if (sErr) throw sErr;
  } catch (se) {
@@ -1443,6 +1442,9 @@ export async function updateMyEmailAction(email: string) {
  const cleaned = (email || "").trim().toLowerCase();
  if (!cleaned || !cleaned.includes("@")) {
  return { ok: false as const, error: "ایمیل نامعتبر است" };
+ }
+ if (isStoreAdminEmail(user.email) || isStoreAdminEmail(cleaned)) {
+ return { ok: false as const, error: "forbidden" as const };
  }
  const { error } = await supabase.auth.updateUser({ email: cleaned });
  if (error) return { ok: false as const, error: error.message };

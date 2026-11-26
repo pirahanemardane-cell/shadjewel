@@ -4,15 +4,25 @@ import {
  canAccessUserOwned,
  isAdminRole,
 } from "@/lib/security/access-control";
+import { STORE_ADMIN_EMAIL } from "@/lib/security/store-admin";
 
 describe("access-control (IDOR)", () => {
- it("admin can access any order", () => {
+ it("store admin can access any order", () => {
  expect(
  canAccessOrder(
- { userId: "a", role: "admin" },
+ { userId: "a", role: "admin", email: STORE_ADMIN_EMAIL },
  { user_id: "b", session_id: null },
  ),
  ).toBe(true);
+ });
+
+ it("role admin without the store email cannot access another order", () => {
+ expect(
+ canAccessOrder(
+ { userId: "a", role: "admin", email: "other@example.com" },
+ { user_id: "b", session_id: null },
+ ),
+ ).toBe(false);
  });
 
  it("owner can access own order", () => {
