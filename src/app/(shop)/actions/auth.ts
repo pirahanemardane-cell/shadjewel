@@ -145,14 +145,12 @@ export async function signUpAction(
         id: userId,
         full_name: fullName ?? null,
         phone: phoneNorm,
-        role: "customer",
       } as never);
       if (profileError) {
         const { error: fallbackErr } = await supabase.from("profiles").upsert({
           id: userId,
           full_name: fullName ?? null,
           phone: phoneNorm,
-          role: "customer",
         } as never);
         if (fallbackErr) console.error("[signUp profile]", fallbackErr);
       }
@@ -162,7 +160,6 @@ export async function signUpAction(
         id: userId,
         full_name: fullName ?? null,
         phone: phoneNorm,
-        role: "customer",
       } as never);
       if (profileError) console.error("[signUp profile]", profileError);
     }
@@ -230,7 +227,7 @@ export async function verifyOtpAction(phone: string, code: string) {
  .maybeSingle();
 
  let userId = (profile as { id?: string } | null)?.id as string | undefined;
- let role = String((profile as { role?: string } | null)?.role || "customer");
+ let role = String((profile as { role?: string } | null)?.role || "buyer");
  let authEmail = syntheticEmail;
 
  if (!userId) {
@@ -262,7 +259,6 @@ export async function verifyOtpAction(phone: string, code: string) {
  await admin.from("profiles").upsert({
  id: userId,
  phone: normalized,
- role: role === "admin" ? "admin" : "customer",
  } as never);
  }
  } else {

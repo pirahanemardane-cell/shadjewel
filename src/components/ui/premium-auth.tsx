@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { signInAction, signUpAction, resetPasswordAction, requestOtpAction, verifyOtpAction } from "@/app/(shop)/actions/auth";
+import { isStoreAdmin } from "@/lib/security/store-admin";
 import { getMyProfileAction } from "@/app/(shop)/actions/shop";
 import { isValidIranMobile, normalizeIranMobile, onlyDigits } from "@/lib/numbers";
 import {
@@ -243,8 +244,10 @@ export function AuthForm({
  try {
  void onSuccess?.({ phone: formData.phone });
  } catch {}
- const role = String((ver as { role?: string }).role || "").toLowerCase();
- const isAdmin = role === "admin" || role === "superadmin";
+ const isAdmin = isStoreAdmin({
+ email: (ver as { email?: string }).email,
+ role: (ver as { role?: string }).role,
+ });
  const qNext = new URLSearchParams(window.location.search).get("next");
  let dest =
  qNext && qNext.startsWith("/") && !qNext.startsWith("//")
@@ -296,10 +299,10 @@ export function AuthForm({
     try {
       const prof = await getMyProfileAction();
       if (prof.ok) {
-        const r = String(
-          (prof.profile as { role?: string } | null | undefined)?.role || "",
-        ).toLowerCase();
-        isAdmin = r === "admin" || r === "superadmin";
+        isAdmin = isStoreAdmin({
+          email: prof.email,
+          role: (prof.profile as { role?: string } | null | undefined)?.role,
+        });
       }
     } catch (e) {
       console.error("[login role]", e);

@@ -468,10 +468,7 @@ export async function adminArchiveUsersAction(ids: string[]) {
  if (!list.length) return { ok: false as const, error: "empty" as const };
  try {
  const { error } = await gate.supabase.from("profiles").update({ is_active: false }).in("id", list);
- if (error) {
- const { error: e2 } = await gate.supabase.from("profiles").update({ role: "customer" }).in("id", list).neq("role", "superadmin" as never);
- if (e2) throw e2;
- }
+ if (error) throw error;
  return { ok: true as const, count: list.length };
  } catch (e) {
  console.error("[adminArchiveUsers]", e);

@@ -3,9 +3,6 @@
 import { requireAdmin } from "@/lib/admin/require-admin";
 
 
-type Role = "customer" | "admin" | "staff";
-
-
 export async function adminListUsersAction(
  limit = 50,
  opts?: { q?: string; role?: string },
@@ -19,9 +16,12 @@ export async function adminListUsersAction(
  .order("created_at", { ascending: false })
  .limit(Math.min(200, Math.max(1, Number(limit) || 50)));
 
- const role = (opts?.role || "").trim();
- if (role && ["customer", "staff", "admin"].includes(role)) {
- query = query.eq("role", role as "customer" | "admin" | "staff");
+ const role = (opts?.role || "").trim().toLowerCase();
+ if (role === "admin") {
+ query = query.eq("role", "admin");
+ } else if (role === "buyer" || role === "customer") {
+ // customer is the pre-migration buyer value
+ query = query.or("role.eq.buyer,role.eq.customer");
  }
  const q = (opts?.q || "").trim().slice(0, 80);
  if (q) {
@@ -40,25 +40,9 @@ export async function adminListUsersAction(
  }
 }
 
-export async function adminUpdateUserRoleAction(userId: string, role: Role) {
+/** Roles are database-owned. This action cannot grant or change them. */
+export async function adminUpdateUserRoleAction(_userId: string, _role: string) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error };
- if (!["customer", "admin", "staff"].includes(role)) {
- return { ok: false as const, error: "bad_role" };
- }
- // جلوگیری از حذف نقش خودت از admin (اختیاری ولی ایمن)
- if (userId === gate.userId && role !== "admin") {
- return { ok: false as const, error: "cannot_demote_self" };
- }
- try {
- const { error } = await gate.supabase
- .from("profiles")
- .update({ role })
- .eq("id", userId);
- if (error) throw error;
- return { ok: true as const };
- } catch (e) {
- console.error("[adminUpdateUserRole]", e);
- return { ok: false as const, error: "server" };
- }
+ return { ok: false as const, error: "role_locked" as const };
 }

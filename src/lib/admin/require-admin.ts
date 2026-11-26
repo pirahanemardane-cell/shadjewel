@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isStoreAdmin } from "@/lib/security/store-admin";
 
 /**
  * در یک request فقط یک‌بار اجرا می‌شود (layout + page هر دو صدا بزنند → یک round-trip)
@@ -25,8 +26,9 @@ export const requireAdmin = cache(async () => {
  console.error("[requireAdmin profile]", error);
  return { ok: false as const, error: "server" as const };
  }
- const role = String((profile as { role?: string } | null)?.role || "").toLowerCase();
- if (role !== "admin" && role !== "superadmin") {
+ const role = (profile as { role?: string } | null)?.role;
+ // getUser().email is auth.users.email, not user_metadata.
+ if (!isStoreAdmin({ email: user.email, role })) {
  return { ok: false as const, error: "forbidden" as const };
  }
 
