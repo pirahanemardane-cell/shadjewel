@@ -17,7 +17,7 @@ function normalizeSlug(raw: string): string {
 
 export class CategoryRepository extends BaseRepository {
  async findAllActive() {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const { data, error } = await client
  .from("categories")
  .select("*")
@@ -28,7 +28,7 @@ export class CategoryRepository extends BaseRepository {
  }
 
  async findRoots() {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const { data, error } = await client
  .from("categories")
  .select("*")
@@ -40,7 +40,7 @@ export class CategoryRepository extends BaseRepository {
  }
 
  async findBySlug(slug: string) {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const s = normalizeSlug(slug);
  const { data, error } = await client
  .from("categories")
@@ -53,7 +53,7 @@ export class CategoryRepository extends BaseRepository {
  }
 
  async findChildren(parentId: string) {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const { data, error } = await client
  .from("categories")
  .select("*")

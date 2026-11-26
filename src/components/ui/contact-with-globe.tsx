@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, Mail, Clock, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import * as d3 from "d3";
-import { feature } from "topojson-client";
 import type { Topology, GeometryCollection, GeometryObject } from "topojson-specification";
 import type { GeoPermissibleObjects } from "d3";
 
 const smoothEase = [0.25, 0.1, 0.25, 1] as const;
+type D3Module = typeof import("d3");
+let d3Ready: D3Module | null = null;
 
 const CONTACT_LINKS = [
  {
@@ -93,19 +93,23 @@ function GlobeWireframe({
  }, []);
 
  useEffect(() => {
- (async () => {
+ let cancelled = false;
+ void (async () => {
  try {
- const res = await fetch(
- "/geo/countries-110m.json",
- );
+ const { feature } = await import("topojson-client");
+ const res = await fetch("/geo/countries-110m.json");
  const world = (await res.json()) as WorldAtlasTopology;
+ if (cancelled) return;
  setWorldData(
  feature(world, world.objects.countries).features as GeoFeature[],
  );
  } catch {
- setWorldData([]);
+ if (!cancelled) setWorldData([]);
  }
  })();
+ return () => {
+ cancelled = true;
+ };
  }, []);
 
  useEffect(() => {
@@ -128,7 +132,9 @@ function GlobeWireframe({
  if (dimensions.width === 0) return;
  const w = dimensions.width;
  const h = dimensions.height;
- const svg = d3.select(svgRef.current);
+ const node = svgRef.current;
+ const paint = (d3: D3Module) => {
+ const svg = d3.select(node);
  svg.selectAll("*").remove();
 
  const projection = d3
@@ -193,6 +199,19 @@ function GlobeWireframe({
  } catch {
  /* ignore */
  }
+ };
+ if (d3Ready) {
+ paint(d3Ready);
+ return;
+ }
+ let cancelled = false;
+ void import("d3").then((mod) => {
+ d3Ready = mod;
+ if (!cancelled) paint(mod);
+ });
+ return () => {
+ cancelled = true;
+ };
  }, [
  worldData,
  rotation,

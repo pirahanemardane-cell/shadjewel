@@ -15,27 +15,33 @@ export const metadata: Metadata = {
 
 const HERO_SLIDES = [
   {
-    image: "/hero/polaroid-earring.webp",
+    image: "/hero/card/polaroid-earring.webp",
+    fullImage: "/hero/polaroid-earring.webp",
     alt: "گوشواره دست‌ساز",
   },
   {
-    image: "/hero/polaroid-01.webp",
+    image: "/hero/card/polaroid-01.webp",
+    fullImage: "/hero/polaroid-01.webp",
     alt: "اکسسوری دست‌ساز",
   },
   {
-    image: "/hero/polaroid-02.webp",
+    image: "/hero/card/polaroid-02.webp",
+    fullImage: "/hero/polaroid-02.webp",
     alt: "جواهرات دست‌ساز",
   },
   {
-    image: "/hero/polaroid-03.webp",
+    image: "/hero/card/polaroid-03.webp",
+    fullImage: "/hero/polaroid-03.webp",
     alt: "گردنبند دست‌ساز",
   },
   {
-    image: "/hero/polaroid-04.webp",
+    image: "/hero/card/polaroid-04.webp",
+    fullImage: "/hero/polaroid-04.webp",
     alt: "دستبند دست‌ساز",
   },
   {
-    image: "/hero/polaroid-05.webp",
+    image: "/hero/card/polaroid-05.webp",
+    fullImage: "/hero/polaroid-05.webp",
     alt: "انگشتر دست‌ساز",
   },
 ] as const;
@@ -46,7 +52,7 @@ function HomeHeroPreloads() {
     <link
       rel="preload"
       as="image"
-      href="/hero/polaroid-02.webp"
+      href="/hero/card/polaroid-02.webp"
       type="image/webp"
     />
   );

@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 const HIDE_ON_PDP = new Set(["size", "color", "سایز", "رنگ"]);
 
 export async function getProductSpecRows(productId: string) {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data, error } = await supabase
  .from("product_attribute_values")
  .select(

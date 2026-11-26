@@ -89,6 +89,15 @@ function requestIdFrom(request: NextRequest): string {
   return resolveRequestId(request.headers.get(REQUEST_ID_HEADER));
 }
 
+/** Known app routes. Custom DB redirects apply to leftover slugs (old product/brand URLs). */
+function isReservedPath(pathname: string): boolean {
+  if (pathname === "/") return true;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return true;
+  const seg = decodeSeg(parts[0]);
+  return RESERVED.has(seg) || RESERVED.has(seg.toLowerCase());
+}
+
 async function sessionRewrite(request: NextRequest, pathname: string) {
   const rid = requestIdFrom(request);
   const url = request.nextUrl.clone();
@@ -180,7 +189,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // ریدایرکت formal از DB (۳۰۱ و ...)
+  // ریدایرکت formal از DB (۳۰۱ و ...) — فقط مسیرهای ناشناخته.
+  // مسیرهای رزرو (خانه، فروشگاه، بلاگ، …) یک رفت‌وبرگشت Supabase روی هر درخواست
+  // اضافه می‌کردند و TTFB را بالا می‌بردند. ریدایرکت انگلیسی→فارسی پایین‌تر هندل می‌شود.
+  if (!isReservedPath(pathname)) {
   try {
     const hit = await lookupUrlRedirect(pathname);
     if (hit) {
@@ -190,6 +202,7 @@ export async function proxy(request: NextRequest) {
     }
   } catch {
     /* ignore lookup errors */
+  }
   }
 
   // English storefront → Persian public URL (cheap 301; site not indexed yet)

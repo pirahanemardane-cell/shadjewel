@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export type RelatedProductCard = {
  id: string;
@@ -16,7 +16,7 @@ export async function getRelatedProducts(
 ): Promise<RelatedProductCard[]> {
  if (!categoryId) return [];
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data: products, error } = await supabase
  .from("products")
  .select("id, name, slug")

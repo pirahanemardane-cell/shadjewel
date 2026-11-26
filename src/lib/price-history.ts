@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 type VariantLike = {
  price?: number | null;
@@ -97,7 +98,7 @@ export async function recordProductPrice(opts: {
 
 export async function getProductPriceHistory(productId: string, limit = 60) {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data, error } = await supabase
  .from("product_price_history")
  .select("price, recorded_at")

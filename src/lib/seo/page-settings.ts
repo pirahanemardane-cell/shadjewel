@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Metadata } from "next";
 import { applySeoTemplate } from "@/lib/seo/template";
 import { isSiteIndexable } from "@/lib/seo/indexing";
@@ -8,7 +8,7 @@ export async function metadataFromSeoPage(
  fallback: { title: string; description: string },
 ): Promise<Metadata> {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data } = await supabase
  .from("seo_page_settings")
  .select("meta_title, meta_description, og_title, og_description, og_image_url, robots_index, robots_follow, canonical_url, title")

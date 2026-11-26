@@ -20,6 +20,8 @@ export type LandPalette = "dawn" | "alpine" | "dusk" | "mist"
 
 export type Slide = {
   image?: string
+  /** Full-resolution source for the lightbox. The card uses `image` (smaller). */
+  fullImage?: string
   title?: string
   caption?: string
   alt?: string
@@ -258,9 +260,10 @@ function useSlideImages(slides: Slide[]): string[] {
 }
 
 const PL_CSS = [
-  ".pl-root{position:relative;width:100%;overflow:hidden;background:var(--pl-bg);color:var(--pl-ink);user-select:none;-webkit-user-select:none;touch-action:pan-y;outline:none;cursor:grab}",
+  ".pl-root{position:relative;width:100%;overflow:hidden;background:var(--pl-bg);color:var(--pl-ink);user-select:none;-webkit-user-select:none;touch-action:pan-y;outline:none;cursor:grab;container-type:inline-size;--pl-cw:min(300px,42cqi)}",
   ".pl-root[data-drag='1']{cursor:grabbing}",
   ".pl-root[data-ready='0'] .pl-card{visibility:hidden}",
+  ".pl-root[data-ready='0'] .pl-card[data-lcp='1']{visibility:visible;left:50%;top:0;transform:translate(-50%,calc(max(40px,20%) + 40px))}",
   ".pl-root:focus-visible{box-shadow:inset 0 0 0 2px var(--pl-ink)}",
   ".pl-string{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}",
   ".pl-card{position:absolute;left:0;top:0;width:var(--pl-cw);transform-origin:50% 0;will-change:transform;cursor:pointer}",
@@ -968,7 +971,7 @@ export default function PolaroidLineCarousel({
         ["--pl-ink" as string]: ink,
         ["--pl-muted" as string]: "color-mix(in srgb, var(--pl-ink) 55%, transparent)",
         ["--pl-line" as string]: "color-mix(in srgb, var(--pl-ink) 18%, transparent)",
-        ["--pl-cw" as string]: size.cw + "px",
+        ["--pl-cw" as string]: size.w > 0 ? size.cw + "px" : `min(${cardWidth}px, 42cqi)`,
         ...style,
       }}
       data-drag={dragging ? "1" : "0"}
@@ -988,24 +991,43 @@ export default function PolaroidLineCarousel({
       <svg className="pl-string" aria-hidden="true">
         <path ref={pathRef} fill="none" stroke={string} strokeWidth="1.5" strokeLinecap="round" />
       </svg>
-      {slides.map((sl, i) => (
+      {slides.map((sl, i) => {
+        const lcp = i === startIndex
+        // Only the center print is in the first HTML. Neighbors mount after
+        // layout so the browser does not download every slide before LCP.
+        const showImg = ready || lcp
+        return (
         <div
           key={i}
           className="pl-card"
           data-i={i}
+          data-lcp={lcp ? "1" : undefined}
           data-on={i === active ? "1" : "0"}
           ref={(el) => void (cards.current[i] = el)}
           aria-hidden={i === active ? undefined : true}
         >
           <div className="pl-print">
             <div className="pl-shot">
-              {srcs[i] ? <img src={srcs[i]} alt={sl.alt || sl.title || ""} draggable={false} /> : null}
+              {showImg && srcs[i] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={srcs[i]}
+                  alt={sl.alt || sl.title || ""}
+                  width={640}
+                  height={640}
+                  draggable={false}
+                  decoding="async"
+                  loading={lcp ? "eager" : "lazy"}
+                  fetchPriority={lcp ? "high" : "low"}
+                />
+              ) : null}
             </div>
             <div className="pl-note">{showChrome ? sl.title || "" : ""}</div>
           </div>
           <div className="pl-peg" />
         </div>
-      ))}
+        )
+      })}
       {showChrome ? (
         <div className="pl-bar">
           <div className="pl-cap" key={active} aria-hidden="true">
@@ -1030,9 +1052,9 @@ export default function PolaroidLineCarousel({
       <div className="pl-sr" aria-live="polite">
         {"Print " + (active + 1) + " of " + n + (s.title ? ": " + s.title : "")}
       </div>
-      {lightbox != null && srcs[lightbox] ? (
+      {lightbox != null && (slides[lightbox]?.fullImage || srcs[lightbox]) ? (
         <PolaroidLightbox
-          src={srcs[lightbox]}
+          src={slides[lightbox]?.fullImage || srcs[lightbox]}
           alt={lb?.alt || lb?.title || ""}
           onClose={() => setLightbox(null)}
         />

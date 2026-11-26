@@ -408,7 +408,7 @@ if (res.ok === false && res.error === "login_required") {
  alt={name}
  fill
  sizes={imageSizes}
- quality={75}
+ quality={65}
  className="z-0 absolute inset-0 h-full w-full object-cover object-center"
  />
  ) : (

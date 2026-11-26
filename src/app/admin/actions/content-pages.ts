@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/require-admin";
-import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@supabase/supabase-js";
+import { createPublicClient } from "@/lib/supabase/public";
+import type { Database } from "@/types/database";
 import {
  CONTENT_KEYS,
  DEFAULT_FAQ,
@@ -62,9 +63,34 @@ function asTextPage(slug: ContentPageSlug, raw: unknown): TextPageContent {
 }
 
 async function readSetting(key: string): Promise<unknown> {
- // service client: مطمئن از خواندن حتی اگر RLS محدود باشد
+ // Anon read first so public pages stay cacheable (no cookies()).
  try {
- const supabase = createServiceClient();
+ const supabase = createPublicClient();
+ const { data, error } = await supabase
+ .from("site_settings")
+ .select("value")
+ .eq("key", key)
+ .maybeSingle();
+ if (!error) return data?.value ?? null;
+ } catch (e) {
+ console.error("[readSetting public]", key, e);
+ }
+ // service role fallback when RLS hides the row from anon. Cached GET so the page stays ISR.
+ try {
+ const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+ if (!url || !serviceKey) return null;
+ const supabase = createClient<Database>(url, serviceKey, {
+ auth: { persistSession: false, autoRefreshToken: false },
+ global: {
+ fetch: (input, init) =>
+ fetch(input, {
+ ...init,
+ cache: "force-cache",
+ next: { revalidate: 60 },
+ } as RequestInit),
+ },
+ });
  const { data, error } = await supabase
  .from("site_settings")
  .select("value")

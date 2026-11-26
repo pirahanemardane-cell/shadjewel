@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 export type SizeGuideView = {
   id: string;
@@ -14,7 +16,7 @@ export type SizeGuideView = {
   }[];
 };
 
-type Sb = Awaited<ReturnType<typeof createClient>>;
+type Sb = SupabaseClient<Database>;
 
 async function loadGuideById(
   supabase: Sb,
@@ -55,7 +57,7 @@ async function loadGuideById(
 export async function loadPrimarySizeGuide(): Promise<SizeGuideView | null> {
   try {
     // Public read — no service role required
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: guide, error } = await supabase
       .from("size_guides")
       .select("id")
@@ -81,7 +83,7 @@ export async function loadSizeGuideForProduct(opts: {
   categoryId?: string | null;
 }): Promise<SizeGuideView | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     if (opts.sizeGuideId) {
       const g = await loadGuideById(supabase, opts.sizeGuideId);
       if (g) return g;

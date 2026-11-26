@@ -48,7 +48,8 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
  useEffect(() => {
  let cancelled = false;
- (async () => {
+ const run = () => {
+ void (async () => {
  try {
  const supabase = createClient();
  const { data } = await supabase.auth.getUser();
@@ -60,8 +61,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
  if (!cancelled) setReady(true);
  }
  })();
+ };
+ const w = window as Window & {
+ requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+ cancelIdleCallback?: (id: number) => void;
+ };
+ let idle = 0;
+ let timer = 0;
+ if (typeof w.requestIdleCallback === "function") idle = w.requestIdleCallback(run, { timeout: 2500 });
+ else timer = window.setTimeout(run, 1200);
  return () => {
  cancelled = true;
+ w.cancelIdleCallback?.(idle);
+ window.clearTimeout(timer);
  };
  }, []);
 

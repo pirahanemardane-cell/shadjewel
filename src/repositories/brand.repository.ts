@@ -3,7 +3,7 @@ import type { Brand } from "@/types/database";
 
 export class BrandRepository extends BaseRepository {
  async findAllActive() {
- const client = await this.getClient();
+ const client = this.getPublicClient();
 
  const { data, error } = await client
  .from("brands")
@@ -19,7 +19,7 @@ export class BrandRepository extends BaseRepository {
  }
 
  async findBySlug(slug: string) {
- const client = await this.getClient();
+ const client = this.getPublicClient();
 
  const { data, error } = await client
  .from("brands")

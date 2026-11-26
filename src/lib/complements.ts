@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export type ComplementCard = {
   id: string;
@@ -47,7 +47,7 @@ async function hydrateCards(
   kind: "buy_with" | "set",
 ): Promise<ComplementCard[]> {
   if (!products.length) return [];
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const ids = products.map((p) => p.id);
   const [{ data: images }, { data: variants }] = await Promise.all([
     supabase
@@ -98,7 +98,7 @@ export async function getProductComplements(
   const empty = { buyWith: [] as ComplementCard[], sets: [] as ComplementCard[] };
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
     const { data: linksRaw } = await supabase
       .from("product_complements" as never)
