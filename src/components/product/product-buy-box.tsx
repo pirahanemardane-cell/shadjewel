@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useRtEvent } from "@/hooks/use-rt-event";
 import { RT } from "@/lib/realtime/events";
 import { createClient } from "@/lib/supabase/client";
-import { resolveColorHex } from "@/lib/colors";
+import { resolveSwatchColor, swatchLabel } from "@/lib/colors";
 import { ProductWishCompareInline } from "@/components/product/product-wish-compare";
 import { track } from "@/lib/analytics/track";
 
@@ -101,7 +101,7 @@ export function ProductBuyBox({
  const key = name.toLowerCase();
  if (seen.has(key)) continue;
  seen.add(key);
- out.push({ name, hex: resolveColorHex(v.color, null) || "" });
+ out.push({ name, hex: resolveSwatchColor(v.color, null) || "" });
  }
  return out;
  }, [variants]);
@@ -247,9 +247,9 @@ export function ProductBuyBox({
  "border-border h-8 w-8 shrink-0 rounded-full border shadow-sm",
  selectedColor === c.name && "border-primary ring-primary ring-2 ring-offset-2",
  )}
- style={{ backgroundColor: c.hex || "#e5e5e5" }}
- title={c.name}
- aria-label={c.name}
+ style={{ background: c.hex || "#e5e5e5" }}
+ title={swatchLabel(c.name)}
+ aria-label={swatchLabel(c.name)}
  />
  ))}
  </div>

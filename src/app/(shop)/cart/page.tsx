@@ -5,7 +5,7 @@ import { mapCartError } from "@/lib/cart-errors";
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { resolveColorHex } from "@/lib/colors";
+import { resolveSwatchColor } from "@/lib/colors";
 import {
  sizeAvailable,
  colorAvailable,
@@ -302,7 +302,7 @@ export default function CartPage() {
  <p className="text-muted-foreground text-[11px]">رنگ</p>
  <div className="flex flex-wrap justify-end gap-1.5">
  {colors.map((c) => {
- const hex = resolveColorHex(c) || c;
+ const hex = resolveSwatchColor(c) || c;
  const active = sameColor(c, currentColor);
  const ok = colorAvailable(c, likes, currentSize);
  return (
@@ -319,7 +319,7 @@ export default function CartPage() {
  ? "border-primary ring-2 ring-primary/30"
  : "border-border"
  } ${!ok ? "cursor-not-allowed opacity-30" : ""}`}
- style={{ backgroundColor: hex || c }}
+ style={{ background: hex || c }}
  />
  );
  })}

@@ -45,7 +45,7 @@ import {
 } from "lucide-react";
 import { toPersianDigits } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
-import { resolveColorHex } from "@/lib/colors";
+import { swatchLabel } from "@/lib/colors";
 import { getCardPrice, formatToman } from "@/lib/product/card-price";
 
 export interface ProductCard1Props {
@@ -479,14 +479,14 @@ if (res.ok === false && res.error === "login_required") {
  ? "ring-primary ring-2 ring-offset-1"
  : ""
  )}
- style={{ backgroundColor: color }}
+ style={{ background: color }}
  onClick={(e) => {
  e.preventDefault();
  e.stopPropagation();
  setSelectedColor(color);
  setCurrentImageIndex(imageIndexForColor(color, safeImages));
  }}
- aria-label={`رنگ ${color}`}
+ aria-label={`رنگ ${swatchLabel(color)}`}
  />
  ))}
  </div>
