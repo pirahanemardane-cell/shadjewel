@@ -10,6 +10,7 @@ function isDynamicServerUsage(e: unknown): boolean {
 }
 
 export abstract class BaseRepository {
+ /** Cookie session — admin writes and user-owned rows. Opts the route into dynamic rendering. */
  protected async getClient() {
  try {
  return await createClient();
@@ -19,5 +20,10 @@ export abstract class BaseRepository {
  }
  throw e;
  }
+ }
+
+ /** Anon catalog reads. Does not call cookies(), so storefront pages can stay ISR. */
+ protected getPublicClient() {
+ return createPublicClient();
  }
 }

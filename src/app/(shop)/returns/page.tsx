@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTextPageContentAction } from "@/app/admin/actions/content-pages";
 import { ReturnsView } from "@/components/content/returns-view";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
  title: "سیاست مرجوعی | اکسسوری شاد",

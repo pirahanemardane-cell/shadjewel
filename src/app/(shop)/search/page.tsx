@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import {
  expandTypoVariants,
  normalizeSearchQuery,
@@ -68,26 +68,33 @@ export default async function SearchResultsPage({ searchParams }: Props) {
  );
  }
 
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const byId = new Map<string, P>();
 
- for (const term of terms) {
- const safe = term.replace(/%/g, "").slice(0, 80);
- if (!safe) continue;
- const { data } = await supabase
+ const termQueries = terms
+ .map((term) => term.replace(/%/g, "").slice(0, 80))
+ .filter(Boolean)
+ .map((safe) =>
+ supabase
  .from("products")
  .select(SELECT)
  .eq("status", "published")
  .is("deleted_at", null)
  .or(`name.ilike.%${safe}%,short_description.ilike.%${safe}%,slug.ilike.%${safe}%`)
- .limit(48);
+ .limit(48),
+ );
+
+ const [termResults, catsRes, brandsRes] = await Promise.all([
+ Promise.all(termQueries),
+ supabase.from("categories").select("id, name, slug").limit(100),
+ supabase.from("brands").select("name, slug").limit(80),
+ ]);
+
+ for (const { data } of termResults) {
  for (const row of (data as unknown as P[]) ?? []) byId.set(row.id, row);
  }
 
- const { data: allCats } = await supabase
- .from("categories")
- .select("id, name, slug")
- .limit(100);
+ const { data: allCats } = catsRes;
  const matchedCatIds: string[] = [];
  const catMap = new Map<string, { name: string; slug: string }>();
  for (const c of allCats ?? []) {
@@ -117,7 +124,7 @@ export default async function SearchResultsPage({ searchParams }: Props) {
  if (p.brand?.slug && p.brand.name)
  brandMap.set(p.brand.slug, { name: p.brand.name, slug: p.brand.slug });
  }
- const { data: allBrands } = await supabase.from("brands").select("name, slug").limit(80);
+ const { data: allBrands } = brandsRes;
  for (const b of allBrands ?? []) {
  const name = String(b.name || "");
  if (terms.some((t) => name.toLowerCase().includes(t.toLowerCase())))

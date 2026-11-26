@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export type StoreContact = {
  phone: string;
@@ -8,7 +8,7 @@ export type StoreContact = {
 export async function getStoreContact(): Promise<StoreContact> {
  const fallback: StoreContact = { phone: "", email: "" };
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data } = await supabase
  .from("site_settings")
  .select("key, value")

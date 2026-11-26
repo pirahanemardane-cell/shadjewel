@@ -13,7 +13,7 @@ export type ProductWithRelations = Product & {
 
 export class ProductRepository extends BaseRepository {
  async findPublished(filters: ProductFilterInput = { page: 1, pageSize: 12 }) {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const page = filters.page ?? 1;
  const pageSize = filters.pageSize ?? filters.limit ?? 12;
  const from = (page - 1) * pageSize;
@@ -270,7 +270,7 @@ if (filters.sizeId) {
  }
 
  async findBySlug(slug: string) {
- const client = await this.getClient();
+ const client = this.getPublicClient();
  const normalized = normalizeProductSlug(slug);
  if (!normalized) return null;
 

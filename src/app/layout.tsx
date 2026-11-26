@@ -107,18 +107,11 @@ export default function RootLayout({
  type="font/woff2"
  crossOrigin="anonymous"
  />
- {/* Hero titles use font-black (900) + font-thin (100) in first viewport */}
+ {/* Hero H1 is font-black (900). Thin is below the fold and loads with font-display:swap. */}
  <link
  rel="preload"
  as="font"
  href="/fonts/iranyekan/IRANYekanX-Heavy.woff2"
- type="font/woff2"
- crossOrigin="anonymous"
- />
- <link
- rel="preload"
- as="font"
- href="/fonts/iranyekan/IRANYekanX-Thin.woff2"
  type="font/woff2"
  crossOrigin="anonymous"
  />

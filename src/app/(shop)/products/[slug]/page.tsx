@@ -101,10 +101,21 @@ export default async function ProductDetailPage({ params }: Props) {
 
  const product = result.data;
  const siteBase = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "");
- const sizeGuide = await loadSizeGuideForProduct({
+ const sizeGuidePromise = loadSizeGuideForProduct({
  sizeGuideId: (product as { size_guide_id?: string | null }).size_guide_id,
  categoryId: (product as { category_id?: string | null }).category_id,
  });
+ const relatedPromise = getRelatedProducts(
+ product.id,
+ product.category_id ?? product.category?.id ?? null,
+ 8,
+ );
+ const complementsPromise = getProductComplements(
+ product.id,
+ product.category?.slug ?? null,
+ );
+ const priceHistoryPromise = getProductPriceHistory(String(product.id), 40);
+ const specRowsPromise = getProductSpecRows(String(product.id));
  const images = product.images ?? [];
  const primaryImage =
  images.find((img) => img.is_primary) ?? images[0] ?? null;
@@ -187,19 +198,16 @@ export default async function ProductDetailPage({ params }: Props) {
  };
  });
 
- const relatedProducts = await getRelatedProducts(
- product.id,
- product.category_id ?? product.category?.id ?? null,
- 8,
- );
- const complements = await getProductComplements(
- product.id,
- product.category?.slug ?? null,
- );
+ const [sizeGuide, relatedProducts, complements, priceHistoryRaw, specRows] = await Promise.all([
+ sizeGuidePromise,
+ relatedPromise,
+ complementsPromise,
+ priceHistoryPromise,
+ specRowsPromise,
+ ]);
  const isHypoallergenic = Boolean(
  (product as { is_hypoallergenic?: boolean | null }).is_hypoallergenic,
  );
- const priceHistoryRaw = await getProductPriceHistory(String(product.id), 40);
  // میانگین از همه واریانت‌هایی که قیمت معتبر دارند (حتی اگر is_active null باشد)
  const variantsForAvg = (product.variants ?? []).filter(
  (v) => (v as { is_active?: boolean | null }).is_active !== false,
@@ -230,7 +238,6 @@ export default async function ProductDetailPage({ params }: Props) {
  },
  ]
  : priceHistoryRaw.filter((p) => p.price > 0);
- const specRows = await getProductSpecRows(String(product.id));
 
  return (
  <main className="w-full max-w-none mx-auto px-4 py-8 md:py-12">

@@ -184,7 +184,8 @@ export function ProductGallery({
  ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }
  : undefined
  }
- sizes="(max-width: 1024px) 100vw, 50vw"
+ sizes="(max-width: 1024px) 100vw, 40vw"
+ quality={65}
  priority
  />
  <span className="bg-background/80 text-muted-foreground pointer-events-none absolute bottom-3 left-3 rounded-lg px-2 py-1 text-[11px] backdrop-blur-sm max-lg:hidden">

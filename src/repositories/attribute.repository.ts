@@ -7,7 +7,7 @@ export type AttributeWithOptions = Attribute & {
 
 export class AttributeRepository extends BaseRepository {
  async findFilterableWithOptions(): Promise<AttributeWithOptions[]> {
- const client = await this.getClient();
+ const client = this.getPublicClient();
 
  const { data: attrs, error } = await client
  .from("attributes")

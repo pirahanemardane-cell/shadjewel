@@ -1,13 +1,13 @@
 "use server";
 
 import { requireAdmin } from "@/lib/admin/require-admin";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 const KEY_ENDS = "flash_sale_ends_at";
 
 export async function getFlashSaleEndsAtAction() {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data, error } = await supabase
  .from("site_settings")
  .select("value")

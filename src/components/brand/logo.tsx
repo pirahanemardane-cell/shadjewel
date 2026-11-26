@@ -57,6 +57,7 @@ export function Logo({
           width={box.width}
           height={box.height}
           priority={priority}
+          loading={priority ? undefined : "eager"}
           sizes={`${box.width}px`}
           className="!h-full !w-full max-w-none object-contain"
         />
@@ -68,6 +69,7 @@ export function Logo({
             width={box.width}
             height={box.height}
             priority={priority}
+            loading={priority ? undefined : "eager"}
             sizes={`${box.width}px`}
             className="!h-full !w-full max-w-none object-contain dark:hidden"
           />
@@ -78,6 +80,7 @@ export function Logo({
             width={box.width}
             height={box.height}
             priority={priority}
+            loading={priority ? undefined : "eager"}
             sizes={`${box.width}px`}
             className="hidden !h-full !w-full max-w-none object-contain dark:block"
           />

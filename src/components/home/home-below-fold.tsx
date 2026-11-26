@@ -32,6 +32,7 @@ export async function HomeBelowFold() {
     productService.getPublishedProducts({ page: 1, pageSize: 12, bestseller: true }),
     categoryService.getRoots(),
     brandService.getActive(),
+    getFlashSaleEndsAtAction(),
   ]);
   const pick = <T,>(i: number, fallback: T): T => {
     const s = settled[i];
@@ -81,7 +82,7 @@ export async function HomeBelowFold() {
         ? newest.filter((p) => p.is_bestseller)
         : newest;
 
-  const flashRes = await getFlashSaleEndsAtAction();
+  const flashRes = pick(5, { ok: true as const, endsAt: null as string | null });
   const flashEndsAt = flashRes.ok ? flashRes.endsAt : null;
   const flashActive =
     Boolean(flashEndsAt) &&

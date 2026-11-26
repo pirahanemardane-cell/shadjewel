@@ -2,8 +2,6 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
- let supabaseResponse = NextResponse.next({ request });
-
  const hasAuthCookie = request.cookies
  .getAll()
  .some(
@@ -12,9 +10,13 @@ export async function updateSession(request: NextRequest) {
  c.name.startsWith("sb-") ||
  c.name.includes("supabase"),
  );
+ // Anonymous traffic must not forward request overrides. NextResponse.next({ request })
+ // sets x-middleware-request-* and forces private, no-store — even for ISR pages.
  if (!hasAuthCookie) {
- return supabaseResponse;
+ return NextResponse.next();
  }
+
+ let supabaseResponse = NextResponse.next({ request });
 
  const supabase = createServerClient(
  process.env.NEXT_PUBLIC_SUPABASE_URL!,

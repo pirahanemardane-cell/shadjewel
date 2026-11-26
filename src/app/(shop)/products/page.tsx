@@ -38,6 +38,8 @@ export default async function ProductsPage({
  const params = await searchParams;
  const service = new ProductService();
  const categoryService = new CategoryService();
+ const attributeService = new AttributeService();
+ const facetsPromise = attributeService.getFilterableFacets();
  const rootsResult = await categoryService.getRoots();
  const categories =
  rootsResult.success && Array.isArray(rootsResult.data)
@@ -71,8 +73,7 @@ export default async function ProductsPage({
 
  const attrs = parseAttrFacetsFromParams(params);
 
- const attributeService = new AttributeService();
- const facetsResult = await attributeService.getFilterableFacets();
+ const facetsResult = await facetsPromise;
  const allFacets =
  facetsResult.success && Array.isArray(facetsResult.data)
  ? facetsResult.data
