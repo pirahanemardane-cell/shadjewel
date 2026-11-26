@@ -152,10 +152,18 @@ export function WordmarkRevealFooter({
       setMetrics((previous) => (previous.descent === descent && previous.fit === fit ? previous : { descent, fit }));
     };
     measure();
-    if (typeof ResizeObserver === "undefined") return;
+    const onFonts = () => measure();
+    document.fonts?.ready?.then(onFonts).catch(() => undefined);
+    document.fonts?.addEventListener?.("loadingdone", onFonts);
+    if (typeof ResizeObserver === "undefined") {
+      return () => document.fonts?.removeEventListener?.("loadingdone", onFonts);
+    }
     const observer = new ResizeObserver(() => measure());
     observer.observe(wrapper, { box: "border-box" });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.fonts?.removeEventListener?.("loadingdone", onFonts);
+    };
   }, [wordmark]);
 
   React.useLayoutEffect(() => {
@@ -276,7 +284,7 @@ export function WordmarkRevealFooter({
       data-revealed={isRevealed ? "true" : "false"}
       data-lit={lit ? "true" : "false"}
       data-reveal={reveal}
-      className={`@container relative flex w-full flex-col bg-background text-foreground ${className}`}
+      className={`@container relative flex w-full min-w-0 max-w-full flex-col overflow-x-clip bg-background text-foreground ${className}`}
     >
       <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-6 pt-8 @3xl:px-10 @3xl:pt-10">
         <div className="grid gap-8 @2xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] @2xl:gap-10">

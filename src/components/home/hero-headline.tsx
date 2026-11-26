@@ -106,7 +106,7 @@ export function HeroHeadline({ className }: { className?: string }) {
     <div
       ref={wrapRef}
       // flex + justify-center: true visual center on RTL (avoids mx-auto drift).
-      className={["flex w-full justify-center", PAD_CLASS, className]
+      className={["flex w-full min-w-0 justify-center overflow-x-clip", PAD_CLASS, className]
         .filter(Boolean)
         .join(" ")}
       data-hero-h1-fit={fontPx != null ? "1" : "0"}
