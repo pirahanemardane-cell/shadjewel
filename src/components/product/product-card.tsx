@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ProductCard1 as ProductCardUI } from "@/components/ui/product-card-1";
 import type { ProductWithRelations } from "@/repositories/product.repository";
-import { resolveColorHex } from "@/lib/colors";
+import { resolveSwatchColor } from "@/lib/colors";
 import { getCardPrice, formatToman } from "@/lib/product/card-price";
 
 type Props = {
@@ -84,13 +84,12 @@ export function ProductCard({ product }: Props) {
  (x.color_name || "").trim() ||
  (typeof x.color === "string" ? x.color : x.color?.name || "") ||
  "";
- const hex = resolveColorHex(
- name || x.color_hex,
+ const explicit =
  x.color_hex ||
  (x.color && typeof x.color === "object"
  ? x.color.hex_code || x.color.hex
- : null),
- );
+ : null);
+ const hex = resolveSwatchColor(name || explicit, explicit);
  const key = name || hex;
  if (!key || seen.has(key)) continue;
  seen.add(key);
@@ -154,13 +153,12 @@ export function ProductCard({ product }: Props) {
  (x.color_name || "").trim() ||
  (typeof x.color === "string" ? x.color : x.color?.name || "") ||
  "";
- const colorVal = resolveColorHex(
- name || x.color_hex,
+ const explicit =
  x.color_hex ||
  (x.color && typeof x.color === "object"
  ? x.color.hex_code || x.color.hex
- : null),
- );
+ : null);
+ const colorVal = resolveSwatchColor(name || explicit, explicit);
  return {
  id: x.id,
  price: Number(x.price),

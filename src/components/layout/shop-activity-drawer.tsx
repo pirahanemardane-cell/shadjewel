@@ -2,7 +2,7 @@
 
 import { Price } from "@/components/ui/price";
 import { toast } from "@/lib/toaster";
-import { resolveColorHex } from "@/lib/colors";
+import { resolveSwatchColor } from "@/lib/colors";
 import { sizeAvailable, sameColor, colorAvailable, isVariantAvailable } from "@/lib/variant-availability";
 import Link from "next/link";
 import {
@@ -97,8 +97,15 @@ export function ShopActivityDrawer({
  alt=""
  width={56}
  height={56}
- className="h-14 w-14 shrink-0 rounded-md object-cover aspect-square"
- style={{ aspectRatio: "1 / 1", objectFit: "cover" }}
+ className="h-14 w-14 shrink-0 self-center rounded-md bg-muted object-contain"
+ style={{
+ width: "3.5rem",
+ height: "3.5rem",
+ maxWidth: "3.5rem",
+ maxHeight: "3.5rem",
+ aspectRatio: "1 / 1",
+ objectFit: "contain",
+ }}
  />
  ) : (
  <div className="h-14 w-14 shrink-0 rounded-md bg-muted" style={{ aspectRatio: "1 / 1" }} />
@@ -232,7 +239,7 @@ export function ShopActivityDrawer({
  {colors.length > 0 ? (
  <div className="flex flex-wrap items-center justify-end gap-1.5">
  {colors.map((c) => {
- const hex = resolveColorHex(c) || c;
+ const hex = resolveSwatchColor(c) || c;
  const active = sameColor(c, currentColor);
  const ok = colorAvailable(
  c,
@@ -257,7 +264,7 @@ export function ShopActivityDrawer({
  ? "border-primary ring-1 ring-primary/40"
  : "border-black/15"
  } ${!ok ? "cursor-not-allowed opacity-30" : ""}`}
- style={{ backgroundColor: hex || c }}
+ style={{ background: hex || c }}
  />
  );
  })}

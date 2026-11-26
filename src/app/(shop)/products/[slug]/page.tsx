@@ -19,7 +19,7 @@ import { ProductPdpGalleryAndBuy } from "@/components/product/product-pdp-media"
 import { ProductSpecs } from "@/components/product/product-specs";
 import { getProductSpecRows } from "@/lib/product-specs";
 import { getProductPriceHistory, averageVariantPrice } from "@/lib/price-history";
-import { resolveColorHex } from "@/lib/colors";
+import { resolveSwatchColor } from "@/lib/colors";
 import { loadSizeGuideForProduct } from "@/lib/size-guide/load";
 import { SizeGuideSnippet } from "@/components/product/size-guide-snippet";
 import { normalizeProductSlug } from "@/lib/product-slug";
@@ -174,12 +174,14 @@ export default async function ProductDetailPage({ params }: Props) {
  (c.color_name || "").trim() ||
  (typeof c.color === "string" ? c.color : c.color?.name || "") ||
  "";
- let colorVal: string | null = resolveColorHex(
- nameHint || c.color_hex,
+ const explicitHex =
  c.color_hex ||
  (c.color && typeof c.color === "object"
  ? c.color.hex_code ?? c.color.hex
- : null),
+ : null);
+ let colorVal: string | null = resolveSwatchColor(
+ nameHint || explicitHex,
+ explicitHex,
  );
  if (!colorVal && c.color && typeof c.color === "object") {
  colorVal = c.color.hex_code ?? c.color.hex ?? c.color.name ?? null;
